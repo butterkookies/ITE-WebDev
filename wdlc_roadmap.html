@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WDLC Presentation | PDM SDO</title>
+  <meta name="description" content="A presentation-style interactive showcase of the 5 phases of the Web Development Life Cycle for the SDO Portal.">
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- AlpineJS -->
+  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    h1, h2, h3, h4, h5, h6 { font-family: 'Outfit', sans-serif; }
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); border-radius: 10px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(234, 179, 8, 0.2); border-radius: 10px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(234, 179, 8, 0.4); }
+  </style>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            pdm: {
+              brown: '#451a03', brownLight: '#78350f', brownDark: '#1c0a00',
+              yellow: '#eab308', yellowLight: '#facc15', yellowDark: '#ca8a04',
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-pdm-brownDark text-slate-100 min-h-full flex flex-col justify-between overflow-hidden" 
+      x-data="presentationApp()" 
+      @keydown.right.window="nextSlide()" 
+      @keydown.left.window="prevSlide()">
+
+  <!-- Background Decorative Light Effects -->
+  <div class="absolute top-0 left-1/4 w-[400px] h-[400px] bg-pdm-yellow/5 rounded-full blur-3xl pointer-events-none"></div>
+  <div class="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-pdm-brownLight/10 rounded-full blur-3xl pointer-events-none"></div>
+
+  <!-- Header Banner -->
+  <header class="w-full max-w-7xl mx-auto px-6 py-4 flex items-center justify-between z-10 shrink-0">
+    <div class="flex items-center gap-3">
+      <img src="PDM LOGO.png" alt="PDM Logo" class="w-10 h-10 object-contain drop-shadow-md">
+      <div>
+        <div class="font-extrabold text-sm tracking-widest text-pdm-yellow uppercase">PDM SDO Project</div>
+        <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Web Development Life Cycle</div>
+      </div>
+    </div>
+    
+    <!-- Slide Progress Dots -->
+    <div class="hidden md:flex items-center gap-1.5 bg-white/5 border border-white/10 px-4 py-2 rounded-full">
+      <template x-for="(slide, index) in slides" :key="index">
+        <button @click="goToSlide(index)" 
+          class="w-2.5 h-2.5 rounded-full transition-all duration-300"
+          :class="activeSlide === index ? 'bg-pdm-yellow scale-125 shadow-md shadow-pdm-yellow/30' : 'bg-white/20 hover:bg-white/40'"></button>
+      </template>
+    </div>
+  </header>
+
+  <!-- Presentation Main Area -->
+  <main class="flex-1 flex items-center justify-center px-4 md:px-8 py-6 z-10 overflow-hidden relative">
+    
+    <!-- Slide container -->
+    <div class="w-full max-w-4xl bg-white/5 backdrop-blur-md border border-white/10 rounded-[32px] p-6 md:p-8 flex flex-col justify-between shadow-2xl h-[560px] relative overflow-hidden transition-all duration-500">
+      
+      <!-- Slide: Introduction / Title Page (Slide 0) -->
+      <div x-show="activeSlide === 0" class="flex flex-col justify-between h-full text-center py-6"
+           x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-95">
+        <div class="space-y-4 my-auto">
+          <div class="inline-block bg-pdm-yellow/10 border border-pdm-yellow/30 text-pdm-yellowLight text-xs font-bold uppercase tracking-widest px-4 py-1.5 rounded-full">
+            IT31-Web Case Study
+          </div>
+          <h2 class="text-4xl md:text-5xl font-black tracking-tight text-white leading-tight font-outfit">
+            Applying the <span class="text-pdm-yellow">Web Dev Life Cycle</span><br>to the Student Disciplinary Office
+          </h2>
+          <p class="text-slate-400 text-sm md:text-base max-w-xl mx-auto leading-relaxed">
+            An interactive presentation mapping the 5 stages of the WDLC to our computerized SDO records database and student portal.
+          </p>
+        </div>
+        <div class="text-xs text-slate-500 font-medium">
+          Use the <span class="text-pdm-yellow font-bold">Arrow Keys</span> on your keyboard or the buttons below to navigate.
+        </div>
+      </div>
+
+      <!-- Slide: Phase Contents (Slides 1 to 5) -->
+      <template x-for="(slide, index) in slides.slice(1)" :key="index">
+        <div x-show="activeSlide === (index + 1)" class="flex flex-col justify-between h-full"
+             x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-x-4">
+          
+          <!-- Slide Title Area -->
+          <div class="flex items-center justify-between border-b border-white/10 pb-4 shrink-0">
+            <div>
+              <span class="text-pdm-yellow font-black text-xs uppercase tracking-widest" x-text="`Phase ${index + 1}`"></span>
+              <h3 class="text-xl md:text-2xl font-black text-white" x-text="slide.title"></h3>
+            </div>
+            
+            <!-- Toggle Mode: Summary vs. Chat -->
+            <div class="bg-white/5 border border-white/10 p-1 rounded-full flex items-center gap-1">
+              <button @click="viewMode = 'summary'" 
+                class="px-4 py-1 rounded-full text-xs font-bold transition-all"
+                :class="viewMode === 'summary' ? 'bg-pdm-yellow text-pdm-brownDark shadow' : 'text-slate-400 hover:text-white'">
+                Summary
+              </button>
+              <button @click="viewMode = 'chat'" 
+                class="px-4 py-1 rounded-full text-xs font-bold transition-all"
+                :class="viewMode === 'chat' ? 'bg-pdm-yellow text-pdm-brownDark shadow' : 'text-slate-400 hover:text-white'">
+                Brainstorm
+              </button>
+            </div>
+          </div>
+
+          <!-- Slide Content Area (Flexible & Scrollable) -->
+          <div class="flex-1 overflow-y-auto py-6 custom-scrollbar pr-2">
+            
+            <!-- View Mode: Summary -->
+            <div x-show="viewMode === 'summary'" class="space-y-6"
+                 x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0">
+              
+              <div class="p-5 bg-white/5 border border-white/10 rounded-2xl">
+                <h4 class="text-xs font-bold text-pdm-yellow uppercase tracking-widest mb-2 flex items-center gap-1.5">
+                  <i data-lucide="info" class="w-3.5 h-3.5"></i> Phase Goal
+                </h4>
+                <p class="text-slate-300 text-sm leading-relaxed" x-text="slide.overview"></p>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <template x-for="(point, pIndex) in slide.summaryPoints" :key="pIndex">
+                  <div class="p-4 bg-white/[0.02] border border-white/5 rounded-xl flex gap-3 items-start">
+                    <div class="w-5 h-5 rounded bg-pdm-yellow/10 flex items-center justify-center text-pdm-yellow shrink-0 mt-0.5">
+                      <span class="text-xs font-bold" x-text="pIndex + 1"></span>
+                    </div>
+                    <p class="text-slate-300 text-xs leading-relaxed" x-text="point"></p>
+                  </div>
+                </template>
+              </div>
+            </div>
+
+            <!-- View Mode: Chat -->
+            <div x-show="viewMode === 'chat'" class="space-y-4"
+                 x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0">
+              <template x-for="(chat, cIndex) in slide.chats" :key="cIndex">
+                <div class="flex flex-col gap-1" :class="chat.isMe ? 'items-end' : 'items-start'">
+                  <div class="px-2">
+                    <span class="text-[9px] font-bold uppercase tracking-wider text-slate-500" x-text="chat.speaker"></span>
+                  </div>
+                  <div class="px-4 py-2.5 rounded-2xl max-w-[85%] text-xs shadow"
+                    :class="chat.isMe ? 'bg-pdm-yellow text-pdm-brownDark rounded-tr-none' : 'bg-white/10 text-slate-200 rounded-tl-none'">
+                    <p class="whitespace-pre-line leading-relaxed" x-html="chat.message"></p>
+                  </div>
+                </div>
+              </template>
+            </div>
+
+          </div>
+
+        </div>
+      </template>
+
+      <!-- Bottom Navigation Controls inside Slide Container -->
+      <div class="flex items-center justify-between border-t border-white/10 pt-4 mt-2 shrink-0">
+        <button @click="prevSlide()" 
+          class="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition border border-white/10 hover:bg-white/5 text-slate-300 hover:text-white disabled:opacity-30 disabled:pointer-events-none"
+          :disabled="activeSlide === 0">
+          <i data-lucide="arrow-left" class="w-4 h-4"></i> Previous
+        </button>
+        
+        <!-- Status indicator for current slide -->
+        <span class="text-[10px] font-bold text-slate-500 tracking-widest uppercase" x-text="`${activeSlide + 1} / ${slides.length}`"></span>
+
+        <button @click="nextSlide()" 
+          class="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition bg-pdm-yellow hover:bg-pdm-yellowLight text-pdm-brownDark disabled:opacity-30 disabled:pointer-events-none"
+          :disabled="activeSlide === slides.length - 1">
+          Next <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer Info & Switching Dock -->
+  <footer class="w-full py-4 text-center shrink-0 z-10 flex flex-col items-center gap-4">
+    <p class="text-[10px] text-slate-500 font-medium">PDM Student Disciplinary Office Portal Project &copy; 2026</p>
+
+    <!-- Floating Navigation Dock -->
+    <div class="bg-white/95 backdrop-blur-md border border-slate-200/80 px-4 py-2 rounded-full shadow-lg flex items-center gap-2 max-w-[95%] whitespace-nowrap">
+      <a href="wdlc_roadmap.html" class="px-3 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 bg-pdm-brown text-white shadow-sm">
+        <i data-lucide="map" class="w-3.5 h-3.5 text-pdm-yellow"></i> <span class="hidden sm:inline">Roadmap</span>
+      </a>
+      <div class="w-px h-4 bg-slate-200"></div>
+      <a href="sdo_portal.html" class="px-3 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 text-slate-600 hover:text-pdm-brown hover:bg-slate-100">
+        <i data-lucide="user" class="w-3.5 h-3.5"></i> <span class="hidden sm:inline">Student</span>
+      </a>
+      <div class="w-px h-4 bg-slate-200"></div>
+      <a href="sdo_officer_portal.html" class="px-3 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 text-slate-600 hover:text-pdm-brown hover:bg-slate-100">
+        <i data-lucide="shield" class="w-3.5 h-3.5"></i> <span class="hidden sm:inline">Officer</span>
+      </a>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      lucide.createIcons();
+    });
+
+    function presentationApp() {
+      return {
+        activeSlide: 0,
+        viewMode: 'summary', // 'summary' or 'chat'
+
+        goToSlide(index) {
+          this.activeSlide = index;
+          this.viewMode = 'summary'; // reset mode on switch
+          this.$nextTick(() => { if (typeof lucide !== 'undefined') lucide.createIcons(); });
+        },
+
+        nextSlide() {
+          if (this.activeSlide < this.slides.length - 1) {
+            this.goToSlide(this.activeSlide + 1);
+          }
+        },
+
+        prevSlide() {
+          if (this.activeSlide > 0) {
+            this.goToSlide(this.activeSlide - 1);
+          }
+        },
+
+        slides: [
+          // Title Slide (Index 0)
+          {
+            title: "Intro"
+          },
+          // Phase 1 (Index 1)
+          {
+            title: "Information Gathering",
+            overview: "We discussed SDO pain points—focusing on the shift from manual pen-and-paper tracking to an integrated, digitized ledger.",
+            summaryPoints: [
+              "Transition from physical records to computer database entries for security and durability.",
+              "Prevent enrollment blockage conflicts by notifying students of their standing beforehand.",
+              "Enable quick retrieval of records and support digital attachments (proof of violations).",
+              "Maintain reliable communication backups (student email/guardian contacts)."
+            ],
+            chats: [
+              {
+                speaker: "Geronimo, Andrei",
+                isMe: true,
+                message: "Okay ako sa web for SDO, para centralized and easy to access yung mga pending cases sa SDO at dahil na rin pen and paper pa rin ang gamit (as per kasilag) so mahirap mag log papuntang PC or database.\n\nThis avoids conflicts during clearance signing as students with SDO offenses are not always aware of their offenses and will only later find out during signing which causes delay in the enrollment and clearance and so students can resolve them asap."
+              },
+              {
+                speaker: "Kasilag",
+                isMe: false,
+                message: "Goals:\n1. To transition from traditional pen and paper to computerised recording of student records.\n2. Ease of access / retrieval of data.\n3. More secured against unauthorised user / not prone to any altercation (burn, cut, misplacement)."
+              },
+              {
+                speaker: "Malbarosa",
+                isMe: false,
+                message: "Goals:\n1. Modernize the SDO system like other colleges\n2. Make the retrieval of data faster compared to the traditional papers"
+              },
+              {
+                speaker: "Gabriel",
+                isMe: false,
+                message: "For me since ang haba lagi ng isusulat sa sdo mas mapapadali if ever na mag web base nlng ah sdo\n\ntapos siguro mas maganda if doon nalang ma-notify student if may case sila then doon nalang makikita kapag clear na sila"
+              },
+              {
+                speaker: "Geronimo, Mika",
+                isMe: false,
+                message: "nothing yet."
+              },
+              {
+                speaker: "Christian Rey",
+                isMe: false,
+                message: "Tsaka pwede rin yung website mag serve as bulletin board ba for student records... Pwede ivisit ng students to confirm or inquire if may violation sila especially brigada"
+              },
+              {
+                speaker: "Geronimo, Andrei",
+                isMe: true,
+                message: "Yes okay yan. And para may way of delivering messages through email ng student if may cases sila."
+              },
+              {
+                speaker: "Christian Rey",
+                isMe: false,
+                message: "Para alam na agad punishment nila di na hassle mag abang kay maam burce\npwedeng padaanin ang message sa email for formality. Or if may formal message ang SDO na dapat ibigay sa guardian or parent ng student, pwede nila mahanap yung contact ng student quickly through the web\nsaka isa pa, para mag mukha syang NCAP. Pwedeng mag upload ng image ang SDO as proof regarding sa offense ng student. Example: Nakita ni maam burce si Juan na naka civilian kahit na bawal, pwede syang mag picture to provide proof, then recorded yung image together with the offense"
+              }
+            ]
+          },
+          // Phase 2 (Index 2)
+          {
+            title: "Analysis",
+            overview: "We prioritized MVP requirements, choosing pre-created SDO profiles and a student-centric announcement and handbook dashboard over a complex dual system.",
+            summaryPoints: [
+              "Focus strictly on student dashboard visibility to avoid layout and access complexity.",
+              "Implement pre-created accounts (Registrar source of truth) to prevent data manipulation.",
+              "Features: Digital Student Handbook, active cases tracker, and SDO announcements.",
+              "Enforce administrative reporting only (SDO office) to prevent online spam/harassment."
+            ],
+            chats: [
+              {
+                speaker: "Christian Rey",
+                isMe: false,
+                message: "Login (Enter student ID to verify na PDMian sya)\nAnnouncement Tab/Button\nHandbook Rules Tab/Button\nStudent Search Bar\nYung dashboard na pala yung announcements\nThen sa search bar dun isesearch name ng student then sa profile malalaman kung may violation sya"
+              },
+              {
+                speaker: "Jerome",
+                isMe: false,
+                message: "dapat pang admin nalang to bro... andami mag spam report nyan sa violator"
+              },
+              {
+                speaker: "Christian Rey",
+                isMe: false,
+                message: "Hindi ah\nSearch lang yan eh... Admin side na yan\nSDO office pa rin ang main reporting site\nKumbaga viewing nalang dito sa website... Oo pag sa website\nKaya mas maigi sa SDO office talaga ang reporting... Oo since client side sya\nParang petition ganun"
+              },
+              {
+                speaker: "Emanuel",
+                isMe: false,
+                message: "Report bar(pag mag sesend ng picture ng student na nag violate ng rules) Upload file\n\nSign up Parang sa ms teams binibigay ng prof ung accounts"
+              },
+              {
+                speaker: "Geronimo, Andrei",
+                isMe: true,
+                message: "So for Phase 2\n\nContent displayed should be focused on what the students will see instead of showing both for admin and student to avoid complexity.\n\nSimple components muna for now:\n- Login/No need for sign up since galing na mismo sa SDO and Registrar yung account na ibibigay satin, tayo na lang bahala mag change ng pass. Bakit hindi na need gumawa ng account? Para yung student information natin hindi pwedeng madaya at i-manipulate ng student, SDO and Registrar pre-created account will serve as the source truth of every information.\n- Dashboard that shows information about the students' offenses, announcements etc.\n- a digital copy of the student handbook latest."
+              }
+            ]
+          },
+          // Phase 3 (Index 3)
+          {
+            title: "Design & Development",
+            overview: "We built the layout components using Tailwind CSS and AlpineJS. Static mockups represent frontend capability without the need for database servers.",
+            summaryPoints: [
+              "Create modular HTML pages using responsive mobile-friendly Tailwind layouts.",
+              "Incorporate PDM School identity presets (deep warm brown and golden yellow).",
+              "Maintain in-memory state variables (arrays) to simulate full database behavior."
+            ],
+            chats: [
+              {
+                speaker: "Geronimo, Andrei",
+                isMe: true,
+                message: "html and css\nhard coded values shown is okay, since it is just a read website for students, admin website is not included in this."
+              }
+            ]
+          },
+          // Phase 4 (Index 4)
+          {
+            title: "Testing",
+            overview: "We outlined device scaling checkmarks to ensure the user interfaces adapt correctly from large desktops to iPads and mobile devices.",
+            summaryPoints: [
+              "Confirm layout responsiveness (avoid desktop-first elements clipping on mobile layouts).",
+              "Deploy early prototype drafts to student beta testers for UI feedback.",
+              "Verify boundary validation states in forms (e.g. empty reports, incorrect ID structures)."
+            ],
+            chats: [
+              {
+                speaker: "Geronimo, Andrei",
+                isMe: true,
+                message: "phase 4: testing/how are we gonna test it.\npano natin i che-check yung websire:\n\nWe can do it by having it used by beta testers first before deploying to resolve further issues in the UI, backend, possible errors and incompatibility, frontend scaling from PC, mobile, and ipad should be consistent.\nlike pwedeng yung ui okay sa pc, pero hindi okay pag phone user\nganon\nlist of things we can check and how we will implement it"
+              },
+              {
+                speaker: "Christian Rey",
+                isMe: false,
+                message: "Pwede\nTas last is 5"
+              }
+            ]
+          },
+          // Phase 5 (Index 5)
+          {
+            title: "Deployment & Maintenance",
+            overview: "Plan for the final installation on PDM's servers to substitute paper registries and provide a long-term maintenance loop.",
+            summaryPoints: [
+              "Host on PDM mainframe servers to centralize officer/student dashboard viewing.",
+              "Transition old paper entries to the newly formatted database schema.",
+              "Run developer maintenance checks for handbook updates and security reviews."
+            ],
+            chats: [
+              {
+                speaker: "Emanuel",
+                isMe: false,
+                message: "After the SDO website has been tested and approved. It will be deployed on PDM's web server for use by the SDO office.\nThe web system will replace the current pen and paper system with a computerized record management system. This makes it easier\nto record student violations and retrieve records compared to the traditional paper and files.\nRegular maintenance by the developers will ensure that the website remains up to date, functional and secure."
+              }
+            ]
+          }
+        ]
+      }
+    }
+  </script>
+</body>
+</html>

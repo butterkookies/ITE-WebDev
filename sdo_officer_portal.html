@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Officer Portal | PDM SDO</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- AlpineJS -->
+  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    h1, h2, h3, h4, h5, h6 { font-family: 'Outfit', sans-serif; }
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: rgba(241, 245, 249, 0.5); border-radius: 10px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(69, 26, 3, 0.2); border-radius: 10px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(69, 26, 3, 0.4); }
+  </style>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            pdm: {
+              brown: '#451a03', brownLight: '#78350f', brownDark: '#1c0a00',
+              yellow: '#eab308', yellowLight: '#facc15', yellowDark: '#ca8a04',
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased h-screen overflow-hidden" x-data="officerStore()">
+
+  <!-- Toast Notifications -->
+  <div class="fixed bottom-5 right-5 z-50 space-y-2 pointer-events-none max-w-sm w-full">
+    <template x-for="toast in toasts" :key="toast.id">
+      <div class="p-4 rounded-2xl shadow-lg border text-white flex items-start gap-3 pointer-events-auto transition-all"
+        :class="toast.type === 'success' ? 'bg-emerald-950 border-emerald-800' : 'bg-rose-950 border-rose-800'">
+        <div class="flex-1">
+          <p class="text-xs font-bold" x-text="toast.title"></p>
+          <p class="text-[11px] text-slate-300 mt-0.5 leading-relaxed" x-text="toast.msg"></p>
+        </div>
+      </div>
+    </template>
+  </div>
+
+  <div class="flex h-full">
+    
+    <!-- Sidebar -->
+    <aside class="w-64 bg-pdm-brown text-white flex flex-col shadow-xl z-20 shrink-0">
+      <div class="p-5 border-b border-pdm-yellow/20 flex items-center gap-3">
+        <div class="w-10 h-10 flex items-center justify-center relative">
+          <img src="PDM LOGO.png" alt="PDM" class="w-10 h-10 object-contain drop-shadow-md">
+        </div>
+        <div>
+          <div class="font-outfit font-black text-xl tracking-tight leading-none text-pdm-yellow">PDM</div>
+          <div class="text-[10px] font-bold uppercase tracking-widest text-slate-300 mt-0.5">SDO Officer</div>
+        </div>
+      </div>
+
+      <nav class="flex-1 overflow-y-auto py-6 px-4 space-y-1.5 custom-scrollbar">
+        <template x-for="nav in navItems" :key="nav.id">
+          <button @click="changePage(nav.id)" 
+            class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition-all duration-200"
+            :class="activePage === nav.id ? 'bg-pdm-yellow text-pdm-brownDark shadow-md' : 'text-slate-300 hover:bg-white/10 hover:text-white'">
+            <i :data-lucide="nav.icon" class="w-4 h-4"></i>
+            <span x-text="nav.label"></span>
+          </button>
+        </template>
+      </nav>
+
+      <div class="p-5 border-t border-white/10">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-pdm-yellow">
+            <i data-lucide="shield-check" class="w-4 h-4"></i>
+          </div>
+          <div class="text-xs">
+            <div class="font-bold text-white">A. Geronimo</div>
+            <div class="text-[10px] text-slate-400">Chief Officer</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main View -->
+    <div class="flex-1 flex flex-col h-full overflow-hidden bg-slate-50 relative">
+      
+      <!-- Top Header -->
+      <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 shadow-sm z-10 shrink-0">
+        <h2 class="text-sm font-black text-slate-700 uppercase tracking-widest" x-text="getPageTitle()"></h2>
+        
+        <div class="flex items-center gap-4">
+          <a href="sdo_portal.html" class="text-[11px] font-bold text-slate-500 hover:text-pdm-brownDark border border-slate-200 hover:border-pdm-brown/30 bg-slate-50 hover:bg-pdm-brown/5 px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition">
+            <i data-lucide="repeat" class="w-3 h-3"></i> Switch to Student Portal
+          </a>
+        </div>
+      </header>
+
+      <!-- Scrollable Content Container -->
+      <main class="flex-1 overflow-y-auto p-8 pb-28 custom-scrollbar">
+        
+        <!-- PAGE: Dashboard -->
+        <div x-show="activePage === 'dashboard'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-2">
+          
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 flex items-center justify-between">
+              <div>
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Active Cases</span>
+                <h3 class="text-3xl font-black text-slate-900" x-text="cases.filter(c => c.status !== 'Resolved').length"></h3>
+              </div>
+              <div class="p-3.5 bg-rose-50 rounded-2xl text-rose-600"><i data-lucide="alert-octagon" class="w-6 h-6"></i></div>
+            </div>
+
+            <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 flex items-center justify-between">
+              <div>
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Pending Clearances</span>
+                <h3 class="text-3xl font-black text-slate-900" x-text="clearances.filter(c => c.status === 'Pending Sign-off').length"></h3>
+              </div>
+              <div class="p-3.5 bg-amber-50 rounded-2xl text-amber-600 animate-pulse"><i data-lucide="file-check-2" class="w-6 h-6"></i></div>
+            </div>
+
+            <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 flex items-center justify-between">
+              <div>
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Active Appeals</span>
+                <h3 class="text-3xl font-black text-slate-900" x-text="appeals.filter(a => a.status === 'Pending Review').length"></h3>
+              </div>
+              <div class="p-3.5 bg-blue-50 rounded-2xl text-blue-600"><i data-lucide="message-square" class="w-6 h-6"></i></div>
+            </div>
+          </div>
+
+          <!-- Quick Actions / Snapshot -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Latest Cases Snapshot -->
+            <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-sm font-bold text-slate-800">Recent Violations Logged</h3>
+                <button @click="changePage('logs')" class="text-[10px] font-bold text-pdm-yellowDark hover:underline">View All</button>
+              </div>
+              <div class="space-y-3">
+                <template x-for="c in cases.slice(-3).reverse()" :key="c.id">
+                  <div class="p-3 bg-slate-50 border border-slate-100 rounded-xl text-xs flex justify-between items-center">
+                    <div>
+                      <div class="font-bold text-slate-700" x-text="c.violation"></div>
+                      <div class="text-[10px] text-slate-400 font-mono" x-text="`${c.studentId} | ${c.date}`"></div>
+                    </div>
+                    <span class="px-2 py-0.5 rounded-full font-bold text-[9px]" :class="c.severity === 'Minor' ? 'bg-amber-50 text-amber-700' : 'bg-rose-50 text-rose-700'" x-text="c.severity"></span>
+                  </div>
+                </template>
+              </div>
+            </div>
+
+            <!-- Quick Report Form -->
+            <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-sm font-bold text-slate-800">Quick File Incident</h3>
+                <button @click="changePage('file')" class="text-[10px] font-bold text-pdm-yellowDark hover:underline">Full Form</button>
+              </div>
+              <form @submit.prevent="fileIncident()" class="space-y-3">
+                <select x-model="reportForm.studentId" required class="w-full border border-slate-200 rounded-xl p-2.5 text-xs bg-slate-50 focus:ring-2 focus:ring-pdm-brown outline-none">
+                  <option value="">-- Select Student --</option>
+                  <template x-for="st in students" :key="st.id">
+                    <option :value="st.id" x-text="`${st.name} (${st.id})`"></option>
+                  </template>
+                </select>
+                <input type="text" x-model="reportForm.violation" placeholder="Infraction Detail (e.g. Dress Code)" required class="w-full border border-slate-200 rounded-xl p-2.5 text-xs bg-slate-50 focus:ring-2 focus:ring-pdm-brown outline-none">
+                <div class="flex items-center gap-3">
+                  <select x-model="reportForm.severity" class="w-1/2 border border-slate-200 rounded-xl p-2.5 text-xs bg-slate-50 outline-none">
+                    <option value="Minor">Minor Offense</option>
+                    <option value="Major">Major Offense</option>
+                  </select>
+                  <button type="submit" class="w-1/2 bg-pdm-brown hover:bg-pdm-brownDark text-white py-2.5 rounded-xl text-xs font-bold shadow-sm transition">
+                    File Now
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- PAGE: File Incident -->
+        <div x-show="activePage === 'file'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-2">
+          <div class="max-w-2xl bg-white rounded-3xl border border-slate-200 shadow-sm p-8 mx-auto">
+            <h3 class="text-xl font-black text-slate-800 mb-2">File Official Incident Report</h3>
+            <p class="text-xs text-slate-500 mb-6 leading-relaxed">Submit a verified student infraction. This immediately impacts the student's disciplinary standing and flags their clearance requests.</p>
+
+            <form @submit.prevent="fileIncident()" class="space-y-5">
+              <div class="space-y-1.5">
+                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Student Profile</label>
+                <select x-model="reportForm.studentId" required class="w-full border border-slate-200 rounded-xl p-3 text-xs bg-white focus:ring-2 focus:ring-pdm-brown outline-none">
+                  <option value="">-- Choose Student --</option>
+                  <template x-for="st in students" :key="st.id">
+                    <option :value="st.id" x-text="`${st.name} (${st.id}) - ${st.course}`"></option>
+                  </template>
+                </select>
+              </div>
+
+              <div class="space-y-1.5">
+                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Violation Code / Description</label>
+                <input type="text" x-model="reportForm.violation" placeholder="e.g. Vandalism, Cheating on Examination" required class="w-full border border-slate-200 rounded-xl p-3 text-xs focus:ring-2 focus:ring-pdm-brown outline-none">
+              </div>
+
+              <div class="space-y-1.5">
+                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Offense Severity</label>
+                <div class="grid grid-cols-2 gap-4">
+                  <label class="border border-slate-200 rounded-xl p-3 flex items-center justify-center gap-2 cursor-pointer transition text-xs font-bold"
+                    :class="reportForm.severity === 'Minor' ? 'bg-amber-50 border-pdm-yellow text-pdm-goldDark' : 'bg-white text-slate-500 hover:bg-slate-50'">
+                    <input type="radio" value="Minor" x-model="reportForm.severity" class="hidden"> Minor Offense
+                  </label>
+                  <label class="border border-slate-200 rounded-xl p-3 flex items-center justify-center gap-2 cursor-pointer transition text-xs font-bold"
+                    :class="reportForm.severity === 'Major' ? 'bg-rose-50 border-rose-500 text-rose-700' : 'bg-white text-slate-500 hover:bg-slate-50'">
+                    <input type="radio" value="Major" x-model="reportForm.severity" class="hidden"> Major Offense
+                  </label>
+                </div>
+              </div>
+
+              <button type="submit" class="w-full bg-pdm-brown hover:bg-pdm-brownDark text-white py-3.5 rounded-2xl font-bold shadow-md shadow-pdm-brown/20 transition flex items-center justify-center gap-2 text-sm mt-4">
+                <i data-lucide="shield" class="w-4 h-4 text-pdm-yellow"></i> Register Incident
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- PAGE: Master Logs -->
+        <div x-show="activePage === 'logs'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-2">
+          <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+              <div>
+                <h3 class="text-lg font-black text-slate-800">Master Disciplinary Logs</h3>
+                <p class="text-xs text-slate-400 mt-0.5">Filter and monitor all school violation cases.</p>
+              </div>
+              <input type="text" x-model="searchTerm" placeholder="Search logs..." class="border border-slate-200 rounded-xl px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-pdm-brown w-full sm:w-64">
+            </div>
+
+            <div x-show="cases.length === 0" class="p-12 text-center bg-slate-50/50 border border-dashed border-slate-200 rounded-2xl">
+              <p class="text-xs text-slate-400">No incidents logged. All profiles are in Good Standing.</p>
+            </div>
+
+            <div x-show="cases.length > 0" class="overflow-x-auto">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="border-b border-slate-200 text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-slate-50">
+                    <th class="py-3 px-4 rounded-tl-xl">Student Info</th>
+                    <th class="py-3 px-4">Violation Details</th>
+                    <th class="py-3 px-4">Severity</th>
+                    <th class="py-3 px-4">Date</th>
+                    <th class="py-3 px-4 rounded-tr-xl">Case Status</th>
+                  </tr>
+                </thead>
+                <tbody class="text-xs divide-y divide-slate-100">
+                  <template x-for="c in filteredCases()" :key="c.id">
+                    <tr class="hover:bg-slate-50/80 transition">
+                      <td class="py-3 px-4">
+                        <div class="font-bold text-slate-800" x-text="students.find(s => s.id === c.studentId)?.name"></div>
+                        <div class="text-[10px] text-slate-400 font-mono" x-text="c.studentId"></div>
+                      </td>
+                      <td class="py-3 px-4">
+                        <div class="font-semibold text-slate-700" x-text="c.violation"></div>
+                        <div class="text-[10px] text-slate-400 font-mono" x-text="c.id"></div>
+                      </td>
+                      <td class="py-3 px-4">
+                        <span class="px-2 py-0.5 rounded-full font-bold text-[9px]"
+                          :class="c.severity === 'Minor' ? 'bg-amber-50 text-amber-700 border border-amber-200' : 'bg-rose-50 text-rose-700 border border-rose-200'"
+                          x-text="c.severity"></span>
+                      </td>
+                      <td class="py-3 px-4 text-slate-500" x-text="c.date"></td>
+                      <td class="py-3 px-4">
+                        <span class="px-2 py-0.5 rounded-full font-bold text-[9px]"
+                          :class="c.status === 'Resolved' ? 'bg-emerald-50 text-emerald-700' : 
+                                  (c.status === 'Under Appeal' ? 'bg-blue-50 text-blue-700 animate-pulse' : 'bg-rose-50 text-rose-700')"
+                          x-text="c.status"></span>
+                      </td>
+                    </tr>
+                  </template>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- PAGE: Appeals -->
+        <div x-show="activePage === 'appeals'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-2">
+          <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6">
+            <h3 class="text-lg font-black text-slate-800 mb-1">Pending Appeals Evaluation</h3>
+            <p class="text-xs text-slate-400 mb-6">Review submissions from students defending active offenses.</p>
+
+            <div x-show="appeals.filter(a => a.status === 'Pending Review').length === 0" class="p-8 text-center bg-slate-50 border border-dashed border-slate-200 rounded-2xl">
+              <p class="text-xs text-slate-400">No active student appeal letters awaiting evaluation.</p>
+            </div>
+
+            <div class="space-y-4">
+              <template x-for="ap in appeals.filter(a => a.status === 'Pending Review')" :key="ap.id">
+                <div class="p-5 border border-slate-200 rounded-2xl bg-white shadow-sm flex flex-col md:flex-row md:items-start justify-between gap-4">
+                  <div class="space-y-2 max-w-2xl">
+                    <div class="flex items-center gap-2">
+                      <span class="text-sm font-black text-pdm-brown" x-text="students.find(s => s.id === ap.studentId)?.name"></span>
+                      <span class="text-[10px] font-mono text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded" x-text="`Ref: ${ap.caseId}`"></span>
+                    </div>
+                    <div class="text-xs text-slate-500 font-medium">
+                      Violation: <span class="text-slate-800" x-text="cases.find(c => c.id === ap.caseId)?.violation"></span>
+                    </div>
+                    <div class="p-3 bg-amber-50/50 border border-amber-100 rounded-xl">
+                      <p class="text-xs text-slate-700 leading-relaxed italic" x-text="`&ldquo;${ap.reason}&rdquo;`"></p>
+                    </div>
+                    <div class="text-[10px] text-slate-400">Filed: <span x-text="ap.date"></span></div>
+                  </div>
+
+                  <div class="flex md:flex-col items-center gap-2 shrink-0">
+                    <button @click="evaluateAppeal(ap.id, 'approve')" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-sm transition">
+                      Approve Appeal
+                    </button>
+                    <button @click="evaluateAppeal(ap.id, 'deny')" class="w-full border border-slate-200 text-slate-600 hover:bg-slate-50 px-4 py-2 rounded-xl text-xs font-semibold transition">
+                      Deny Appeal
+                    </button>
+                  </div>
+                </div>
+              </template>
+            </div>
+          </div>
+        </div>
+
+        <!-- PAGE: Clearances -->
+        <div x-show="activePage === 'clearances'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-2">
+          <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6">
+            <h3 class="text-lg font-black text-slate-800 mb-1">Clearance Approval Queue</h3>
+            <p class="text-xs text-slate-400 mb-6">Approve, verify, and sign digital disciplinary clearances.</p>
+
+            <div x-show="clearances.filter(c => c.status === 'Pending Sign-off').length === 0" class="p-8 text-center bg-slate-50 border border-dashed border-slate-200 rounded-2xl">
+              <p class="text-xs text-slate-400">No clearance sign-offs queued at this time.</p>
+            </div>
+
+            <div class="space-y-4">
+              <template x-for="cl in clearances.filter(c => c.status === 'Pending Sign-off')" :key="cl.id">
+                <div class="p-5 border border-slate-200 rounded-2xl bg-white shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <span class="text-sm font-black text-slate-800" x-text="students.find(s => s.id === cl.studentId)?.name"></span>
+                      <span class="text-[10px] text-slate-400 font-mono" x-text="`(${cl.studentId})`"></span>
+                    </div>
+                    <div class="text-xs font-medium text-slate-500 mt-1 flex items-center gap-1">
+                      <span>Purpose:</span> <span class="text-slate-700 font-bold" x-text="cl.purpose"></span>
+                    </div>
+                    <span class="text-[10px] text-slate-400 block mt-1">Requested: <span x-text="cl.date"></span></span>
+                  </div>
+
+                  <div class="flex items-center gap-2 shrink-0">
+                    <button @click="signClearance(cl.id, 'approve')" class="bg-pdm-brown hover:bg-pdm-brownDark text-white px-4 py-2 rounded-xl text-xs font-bold shadow-sm transition flex items-center gap-1.5">
+                      <i data-lucide="check" class="w-4 h-4 text-pdm-yellow"></i> Sign
+                    </button>
+                    <button @click="signClearance(cl.id, 'reject')" class="border border-slate-200 text-slate-600 hover:bg-slate-50 px-4 py-2 rounded-xl text-xs font-semibold transition">
+                      Hold
+                    </button>
+                  </div>
+                </div>
+              </template>
+            </div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => { if (typeof lucide !== 'undefined') lucide.createIcons(); });
+
+    function officerStore() {
+      return {
+        activePage: 'dashboard',
+        searchTerm: '',
+        toasts: [],
+
+        navItems: [
+          { id: 'dashboard', label: 'Dashboard Overview', icon: 'layout-dashboard' },
+          { id: 'file', label: 'File Incident', icon: 'plus-circle' },
+          { id: 'logs', label: 'Master Logs', icon: 'database' },
+          { id: 'appeals', label: 'Pending Appeals', icon: 'message-square' },
+          { id: 'clearances', label: 'Clearance Queue', icon: 'file-check-2' }
+        ],
+
+        reportForm: { studentId: '', violation: '', severity: 'Minor' },
+
+        students: [
+          { id: 'PDM-2024-003605', name: 'Andrei Geronimo', course: 'BSIT 3-A', status: 'Good Standing' },
+          { id: 'PDM-2024-003606', name: 'Mark Cruz', course: 'BSIT 3-B', status: 'Under Review' },
+          { id: 'PDM-2024-003607', name: 'Sarah Santos', course: 'BSIT 3-A', status: 'Probation' }
+        ],
+
+        cases: [
+          { id: 'CASE-101', studentId: 'PDM-2024-003606', violation: 'Dress Code Violation (No Uniform)', severity: 'Minor', date: '2026-06-25', status: 'Active' },
+          { id: 'CASE-102', studentId: 'PDM-2024-003607', violation: 'Property Vandalism', severity: 'Major', date: '2026-06-20', status: 'Active' }
+        ],
+
+        appeals: [
+           // Mock an active appeal for testing the UI easily
+           { id: 'APP-301', caseId: 'CASE-101', studentId: 'PDM-2024-003606', reason: 'I was wearing the proper PE uniform as scheduled for Thursday.', date: '2026-06-26', status: 'Pending Review' }
+        ],
+        
+        clearances: [
+           // Mock a pending clearance
+           { id: 'CLR-201', studentId: 'PDM-2024-003605', purpose: 'Graduation & Transfer', date: '2026-06-28', status: 'Pending Sign-off' }
+        ],
+
+        getPageTitle() {
+          return this.navItems.find(n => n.id === this.activePage)?.label || 'Dashboard';
+        },
+
+        changePage(page) {
+          this.activePage = page;
+          this.$nextTick(() => { if (typeof lucide !== 'undefined') lucide.createIcons(); });
+        },
+
+        triggerToast(title, msg, type = 'success') {
+          const id = Date.now();
+          this.toasts.push({ id, title, msg, type });
+          setTimeout(() => { this.toasts = this.toasts.filter(t => t.id !== id); }, 4000);
+        },
+
+        fileIncident() {
+          if (!this.reportForm.studentId || !this.reportForm.violation) return;
+          const student = this.students.find(s => s.id === this.reportForm.studentId);
+          if (!student) return;
+
+          const newCaseId = `CASE-${100 + this.cases.length + 1}`;
+          this.cases.push({
+            id: newCaseId, studentId: this.reportForm.studentId, violation: this.reportForm.violation,
+            severity: this.reportForm.severity, date: new Date().toISOString().split('T')[0], status: 'Active'
+          });
+          
+          if (this.reportForm.severity === 'Major') student.status = 'Probation';
+          else if (student.status !== 'Probation') student.status = 'Under Review';
+
+          this.triggerToast("Incident Filed", `Case ${newCaseId} registered to ${student.name}.`, "success");
+          this.reportForm = { studentId: '', violation: '', severity: 'Minor' };
+          this.changePage('logs');
+        },
+
+        signClearance(id, action) {
+          const cl = this.clearances.find(c => c.id === id);
+          if (!cl) return;
+          if (action === 'approve') {
+            cl.status = 'Signed & Approved';
+            this.triggerToast("Clearance Signed", "Disciplinary clearance verified.", "success");
+          } else {
+            cl.status = 'Hold & Denied';
+            this.triggerToast("Clearance Held", "Sign-off blocked.", "error");
+          }
+        },
+
+        evaluateAppeal(id, result) {
+          const ap = this.appeals.find(a => a.id === id);
+          if (!ap) return;
+          const relatedCase = this.cases.find(c => c.id === ap.caseId);
+          const student = this.students.find(s => s.id === ap.studentId);
+
+          if (result === 'approve') {
+            ap.status = 'Approved';
+            if (relatedCase) relatedCase.status = 'Resolved';
+            const activeCases = this.cases.filter(c => c.studentId === ap.studentId && c.status !== 'Resolved');
+            if (activeCases.length === 0) student.status = 'Good Standing';
+            else if (activeCases.some(c => c.severity === 'Major')) student.status = 'Probation';
+            else student.status = 'Under Review';
+            this.triggerToast("Appeal Accepted", `Case resolved for ${student.name}.`, "success");
+          } else {
+            ap.status = 'Rejected';
+            if (relatedCase) relatedCase.status = 'Active';
+            this.triggerToast("Appeal Denied", "Offense sanctions stand.", "error");
+          }
+        },
+
+        filteredCases() {
+          if (!this.searchTerm) return this.cases;
+          return this.cases.filter(c => {
+            const st = this.students.find(s => s.id === c.studentId);
+            return c.violation.toLowerCase().includes(this.searchTerm.toLowerCase()) || 
+                   (st && st.name.toLowerCase().includes(this.searchTerm.toLowerCase())) || 
+                   c.studentId.includes(this.searchTerm);
+          });
+        }
+      }
+    }
+  </script>
+
+  <!-- Floating Navigation Dock -->
+  <div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-white/95 backdrop-blur-md border border-slate-200/80 px-4 py-2 rounded-full shadow-lg flex items-center gap-2 max-w-[95%] whitespace-nowrap">
+    <a href="wdlc_roadmap.html" class="px-3 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 text-slate-600 hover:text-pdm-brown hover:bg-slate-100">
+      <i data-lucide="map" class="w-3.5 h-3.5"></i> <span class="hidden sm:inline">Roadmap</span>
+    </a>
+    <div class="w-px h-4 bg-slate-200"></div>
+    <a href="sdo_portal.html" class="px-3 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 text-slate-600 hover:text-pdm-brown hover:bg-slate-100">
+      <i data-lucide="user" class="w-3.5 h-3.5"></i> <span class="hidden sm:inline">Student</span>
+    </a>
+    <div class="w-px h-4 bg-slate-200"></div>
+    <a href="sdo_officer_portal.html" class="px-3 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 bg-pdm-brown text-white shadow-sm">
+      <i data-lucide="shield" class="w-3.5 h-3.5 text-pdm-yellow"></i> <span class="hidden sm:inline">Officer</span>
+    </a>
+  </div>
+
+</body>
+</html>
