@@ -1,0 +1,264 @@
+/* style.css - Keep it minimal so you can type it fast */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #ffffff;
+}
+
+/* --- HOME PAGE STYLES --- */
+.hero {
+    text-align: center;
+    margin-top: 100px;
+}
+
+.hero h1 {
+    font-weight: 300;
+    font-size: 48px;
+    margin-bottom: 10px;
+}
+
+.hero h1 strong {
+    font-weight: bold;
+}
+
+.hero p {
+    color: #333;
+    line-height: 1.5;
+}
+
+.badge {
+    display: inline-block;
+    width: 45px;
+    height: 25px;
+    background-color: #d9d9d9;
+    border-radius: 15px;
+    vertical-align: middle;
+}
+
+/* Folders Container */
+.folder-container {
+    display: flex;
+    justify-content: center;
+    gap: 60px;
+    margin-top: 60px;
+}
+
+.folder-wrapper {
+    text-align: center;
+    text-decoration: none;
+    color: black;
+}
+
+/* Realistic Folder Icon */
+.folder-icon {
+    width: 210px;
+    height: 150px;
+    background-color: #dcdcdc;
+    /* Light Grey Tab base */
+    border-radius: 15px;
+    position: relative;
+    margin: 0 auto 15px auto;
+    transition: transform 0.2s;
+}
+
+.folder-icon:hover {
+    transform: scale(1.05);
+}
+
+.folder-icon::before {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 120px;
+    background-color: #e5cd8a;
+    /* Beige Body */
+    border-radius: 15px;
+}
+
+.folder-icon::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 110px;
+    height: 60px;
+    background-color: #e5cd8a;
+    border-radius: 15px 15px 15px 0;
+    /* Smooth curve revealing the grey! */
+}
+
+
+/* --- INTERNAL PAGES (Journal, About, Others) --- */
+
+/* Page allows scrolling to see the full folder */
+body.fixed-page {
+    min-height: 100vh;
+    background-color: #ffffff;
+    /* White background */
+}
+
+.page-container {
+    display: flex;
+    justify-content: center;
+    padding-top: 100px;
+    padding-bottom: 100px;
+    /* Space at the bottom so you can scroll to the end of the folder */
+    min-height: 100vh;
+    box-sizing: border-box;
+}
+
+/* Stretched Open Folder Background */
+.open-folder {
+    /* --- FOLDER SIZE & POSITION CUSTOMIZATION (Change these values easily!) --- */
+    --folder-width: 810px;
+    /* Fixed folder width */
+    --folder-height: 980px;
+    /* Fixed folder height (won't stretch infinitely on zoom) */
+    --folder-x: 0px;
+    /* Position X offset: shift left (-) or right (+) */
+    --folder-y: 0px;
+    /* Position Y offset: shift up (-) or down (+) */
+
+    /* --- MASTER PAPERS ROTATION (Adjusts all papers together!) --- */
+    --papers-rotation: 0deg;
+    /* Master angle for all papers inside this folder */
+
+    /* --- SHADOW CUSTOMIZATION --- */
+    --shadow-x: 0px;
+    --shadow-y: 15px;
+    --shadow-blur: 10px;
+    --shadow-intensity: 0.25;
+
+    /* Apply the styles using the variables */
+    box-shadow: var(--shadow-x) var(--shadow-y) var(--shadow-blur) rgba(0, 0, 0, var(--shadow-intensity));
+    width: var(--folder-width);
+    height: var(--folder-height);
+    top: var(--folder-y);
+    left: var(--folder-x);
+
+    background-color: #e6d08b;
+    border-radius: 15px 15px 15px 15px;
+    /* Flat at bottom, top right has tab */
+    position: relative;
+    transform: rotate(-3deg);
+    /* The folder leans left */
+    transform-origin: center top;
+}
+
+
+/* Stretched Stacked Papers Effect */
+
+/* Back Paper Styling */
+.paper-back {
+    /* --- CUSTOM CONTROLS --- */
+    --width: 720px;
+    /* Paper Width */
+    --height: 900px;
+    /* Paper Height */
+    --x: 30px;
+    /* Horizontal Position (Left offset) */
+    --y: 60px;
+    /* Vertical Position (Top offset) */
+    --rotation: -3deg;
+    /* Tilt angle (relative to master rotation) */
+
+    position: absolute;
+    z-index: 1;
+    top: var(--y);
+    left: var(--x);
+    width: var(--width);
+    height: var(--height);
+    transform: rotate(calc(var(--rotation) + var(--papers-rotation)));
+    transform-origin: center top;
+
+    background-color: #f3f0e6;
+    border-radius: 5px 5px 0 0;
+    box-shadow: -2px 2px 10px rgba(0, 0, 0, 0.15);
+}
+
+/* Middle Paper Styling */
+.paper-middle {
+    /* --- CUSTOM CONTROLS --- */
+    --width: 720px;
+    /* Paper Width */
+    --height: 900px;
+    /* Paper Height */
+    --x: 50px;
+    /* Horizontal Position (Left offset) */
+    --y: 50px;
+    /* Vertical Position (Top offset) */
+    --rotation: -1deg;
+    /* Tilt angle (relative to master rotation) */
+
+    position: absolute;
+    z-index: 3;
+    top: var(--y);
+    left: var(--x);
+    width: var(--width);
+    height: var(--height);
+    transform: rotate(calc(var(--rotation) + var(--papers-rotation)));
+    transform-origin: center top;
+
+    background-color: #fbfbf6e0;
+    border-radius: 5px 5px 0 0;
+    box-shadow: -2px 2px 10px rgba(0, 0, 0, 0.15);
+}
+
+/* Front Paper (Content) Styling */
+.paper-front {
+    /* --- CUSTOM CONTROLS --- */
+    --width: 720px;
+    /* Paper Width */
+    --height: 900px;
+    /* Paper Height */
+    --x: 80px;
+    /* Horizontal Position (Left offset) */
+    --y: 30px;
+    /* Vertical Position (Top offset) */
+    --rotation: 3deg;
+    /* Tilt angle (relative to master rotation) */
+
+    position: absolute;
+    z-index: 5;
+    top: var(--y);
+    left: var(--x);
+    width: var(--width);
+    height: var(--height);
+    transform: rotate(calc(var(--rotation) + var(--papers-rotation)));
+    transform-origin: center top;
+
+    background-color: #fffdf7;
+    border-radius: 5px 5px 0 0;
+    box-shadow: -2px 2px 10px rgba(0, 0, 0, 0.15);
+    padding: 60px;
+    box-sizing: border-box;
+}
+
+.paper-front h2 {
+    font-size: 36px;
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+.paper-front p {
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+/* Floating Back Link so it's always visible */
+.back-link {
+    position: fixed;
+    top: 30px;
+    left: 30px;
+    color: #555;
+    text-decoration: none;
+    font-weight: bold;
+    z-index: 10;
+}
+
+.back-link:hover {
+    text-decoration: underline;
+}
